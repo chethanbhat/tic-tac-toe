@@ -69,6 +69,7 @@
         // GameBoard Settings
 
         const GameBoard = () => {
+
             const gameBoard = {
                 grid: {
                 'top-left'      : '',
@@ -104,6 +105,9 @@
         // Game Settings
 
         const Game = (houses, gameBoard, players) => {
+            
+            const grid = gameBoard.renderGrid();
+            
             const game = {
                 players: players,
 
@@ -116,7 +120,8 @@
             }
 
             const status = () => {
-                let gameOver = false;
+                let gameWon = false;
+                let gameDraw = false;
                 let horizontalVictory = false;
                 let verticalVictory = false;
                 let diagonalVictory = false;
@@ -140,20 +145,31 @@
                 verticalVictory   = victory(leftCol) || victory(centerCol) || victory(rightCol);
                 diagonalVictory   = victory(leftDiagonal) || victory(rightDiagonal);
 
-                gameOver = horizontalVictory || verticalVictory || diagonalVictory;
+                gameWon  = () => {return horizontalVictory || verticalVictory || diagonalVictory};
+                gameDraw = () => {return gameWon() === false && draw() }
                 
-                return gameOver;
+                return {gameWon, gameDraw};
 
             }
 
             const victory = (row) => {
                 return (row.every(item => (item !== '' && item === row[0]) ));
             }
+            
+            const draw = () => {
+                let flag = true;
+                for (const position in grid) {
+                    if(grid[position] === ''){
+                        flag = false;
+                    }
+                }
+                return flag;
+            }
 
             const addListener = () => {
                 houses.forEach(house => {
                     house.addEventListener('click', (house) => {
-                        if(!status()){
+                        if(!status().gameWon() || !status().gameDraw()){
                             turn(house.target.dataset.position);
                         }                      
                         
@@ -162,13 +178,14 @@
             }
 
             const display = () => {
-                const grid = gameBoard.renderGrid();
                 houses.forEach(function(house){
                     house.innerHTML = grid[house.dataset.position];
                 });
-                console.table(grid);
-                if(status()){
-                    console('game over');
+                if(status().gameWon()){
+                    console.log('Victory');
+                }
+                if(status().gameDraw()){
+                    console.log('Draw');
                 }
             }
 
