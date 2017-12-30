@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tic Tac Toe</title>
+
+    <style>
+
+        *, *:before, *:after {
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box !important;
+        -moz-box-sizing: border-box !important;
+        -ms-box-sizing: border-box !important;
+        box-sizing: border-box !important;
+        margin: 0;
+        padding: 0;
+        }
+
+        .board{
+            box-sizing: border-box;
+            width: 300px;
+            margin: 0 auto;
+            padding: 0;
+            background: wheat;
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 17px;
+        }
+
+        .house{
+            display: flex;
+            width: 33.33%;
+            height: 100px;
+            background: firebrick;
+            color: whitesmoke;
+            font-size: 2rem;
+            margin: 0;
+            padding: 0;
+            border: 2px solid whitesmoke;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+
+    </style>
+
+</head>
+<body>
+    
+    <div class="board">
+        <div data-position="top-left" class="house top-left"></div>
+        <div data-position="top-center" class="house top-center"></div>
+        <div data-position="top-right" class="house top-right"></div>
+        <div data-position="center-left" class="house center-left"></div>
+        <div data-position="center-center" class="house center-center"></div>
+        <div data-position="center-right" class="house center-right"></div>
+        <div data-position="bottom-left" class="house bottom-left"></div>
+        <div data-position="bottom-center" class="house bottom-center"></div>
+        <div data-position="bottom-right" class="house bottom-right"></div>  
+    </div>
+    
+    
+    <script>
+
+
+        // GameBoard Settings
+
+        const GameBoard = () => {
+            const gameBoard = {
+                grid: {
+                'top-left'      : '',
+                'top-center'    : '',
+                'top-right'     : '',
+                'center-left'   : '',
+                'center-center' : '',
+                'center-right'  : '',
+                'bottom-left'   : '',
+                'bottom-center' : '',
+                'bottom-right'  : ''
+                },
+    
+                getPosition: function(position){return gameBoard.grid[position]},
+    
+                setPosition: function(position, value){gameBoard.grid[position] = value;},
+    
+                renderGrid:  function(){return gameBoard.grid }
+            }
+            return gameBoard;
+        }
+
+        // Player Settings
+
+        const Player = (mark, turn = false) => {
+            const player = {
+                mark,
+                turn
+            }
+            return player;
+        }
+
+        // Game Settings
+
+        const Game = (houses, gameBoard, players) => {
+            const game = {
+                players: players,
+
+                init: function(){
+                    display();
+                    addListener();
+                    
+                },
+
+            }
+
+            const status = () => {
+                let gameOver = false;
+                let horizontalVictory = false;
+                let verticalVictory = false;
+                let diagonalVictory = false;
+
+                const getter = gameBoard.getPosition;
+                
+                const topRow    = [getter('top-left'), getter('top-center'), getter('top-right')];
+                const centerRow = [getter('center-left'), getter('center-center'), getter('center-right')];                
+                const bottomRow = [getter('bottom-left'), getter('bottom-center'), getter('bottom-right')];
+
+                const leftCol   = [getter('top-left'), getter('center-left'), getter('bottom-left')];
+                const centerCol = [getter('top-center'), getter('center-center'), getter('bottom-center')];
+                const rightCol  = [getter('top-right'), getter('center-right'), getter('bottom-right')];
+
+                const leftDiagonal  = [getter('top-left'), getter('center-center'), getter('bottom-right')];
+                const rightDiagonal = [getter('top-right'), getter('center-center'), getter('bottom-left')];
+
+                // Horizontal Victory
+
+                horizontalVictory = victory(topRow) || victory(centerRow) || victory(bottomRow);
+                verticalVictory   = victory(leftCol) || victory(centerCol) || victory(rightCol);
+                diagonalVictory   = victory(leftDiagonal) || victory(rightDiagonal);
+
+                gameOver = horizontalVictory || verticalVictory || diagonalVictory;
+                
+                return gameOver;
+
+            }
+
+            const victory = (row) => {
+                return (row.every(item => (item !== '' && item === row[0]) ));
+            }
+
+            const addListener = () => {
+                houses.forEach(house => {
+                    house.addEventListener('click', (house) => {
+                        if(!status()){
+                            turn(house.target.dataset.position);
+                        }                      
+                        
+                    });
+                });   
+            }
+
+            const display = () => {
+                const grid = gameBoard.renderGrid();
+                houses.forEach(function(house){
+                    house.innerHTML = grid[house.dataset.position];
+                });
+                console.table(grid);
+                if(status()){
+                    console('game over');
+                }
+            }
+
+            const play = (mark,position) => {
+
+                if(gameBoard.getPosition(position) === ''){
+                        gameBoard.setPosition(position,mark);
+                        display();  
+                }
+
+               
+            }
+
+            const move = (position) => {
+                    const mark = player1.turn ? player1.mark : player2.mark;
+                    play(mark, position)
+            }       
+
+            const turn = (position) =>{
+                    
+                    move(position);
+                    player1.turn = !player1.turn;
+                    player2.turn = !player2.turn;
+   
+
+            }   
+            return game;
+        }
+
+        // Globals     
+        
+        const houses = document.querySelectorAll('.house');
+        const gameBoard = GameBoard();
+
+        const player1 = Player('x',true);
+        const player2 = Player('o');
+
+        const game = Game(houses, gameBoard, {player1, player2});
+
+        game.init()
+
+
+
+
+    
+    </script>
+</body>
+</html>
