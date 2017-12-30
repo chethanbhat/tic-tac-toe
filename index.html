@@ -94,8 +94,9 @@
 
         // Player Settings
 
-        const Player = (mark, turn = false) => {
+        const Player = (name, mark, turn = false) => {
             const player = {
+                name,
                 mark,
                 turn
             }
@@ -183,6 +184,8 @@
                 });
                 if(status().gameWon()){
                     console.log('Victory');
+                    const winner = player1.turn ? player1 : player2;
+                    console.log(winner.name);
                 }
                 if(status().gameDraw()){
                     console.log('Draw');
@@ -220,8 +223,8 @@
         const houses = document.querySelectorAll('.house');
         const gameBoard = GameBoard();
 
-        const player1 = Player('x',true);
-        const player2 = Player('o');
+        const player1 = Player('Player1','x',true);
+        const player2 = Player('Player2','o');
 
         const game = Game(houses, gameBoard, {player1, player2});
 
